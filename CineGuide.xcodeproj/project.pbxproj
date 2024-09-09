@@ -11,6 +11,7 @@
 		EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46356C2C8F229C00B8EB2C /* ContentView.swift */; };
 		EC46356F2C8F229D00B8EB2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EC46356E2C8F229D00B8EB2C /* Assets.xcassets */; };
 		EC4635722C8F229D00B8EB2C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */; };
+		ECBE763E2C8F3AB300F6E9DB /* .env.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		EC46356C2C8F229C00B8EB2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EC46356E2C8F229D00B8EB2C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = .env.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 		EC4635692C8F229C00B8EB2C /* CineGuide */ = {
 			isa = PBXGroup;
 			children = (
+				ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */,
 				EC46356A2C8F229C00B8EB2C /* CineGuideApp.swift */,
 				EC46356C2C8F229C00B8EB2C /* ContentView.swift */,
 				EC46356E2C8F229D00B8EB2C /* Assets.xcassets */,
@@ -125,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECBE763E2C8F3AB300F6E9DB /* .env.xcconfig in Resources */,
 				EC4635722C8F229D00B8EB2C /* Preview Assets.xcassets in Resources */,
 				EC46356F2C8F229D00B8EB2C /* Assets.xcassets in Resources */,
 			);
