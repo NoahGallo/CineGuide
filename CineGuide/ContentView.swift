@@ -1,8 +1,10 @@
 import SwiftUI
-import Foundation
+import Firebase
+import FirebaseFirestore
 
 struct ContentView: View {
     @State private var apiKey: String?
+    let db = Firestore.firestore()
 
     var body: some View {
         VStack {
@@ -10,12 +12,21 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+            
             Button(action: {
                 Task {
                     await getMovies()
                 }
             }, label: {
                 Text("Fetch Movies")
+            })
+            
+            Button(action: {
+                Task {
+                    await fetchFirestoreData()
+                }
+            }, label: {
+                Text("Fetch Firestore Data")
             })
         }
         .padding()
@@ -25,7 +36,7 @@ struct ContentView: View {
         }
     }
 
-    // Chargement de la clé API au démarrage
+    // Load the API key at launch
     func loadApiKey() async {
         if let env = loadEnv(), let key = env["API_TMDB_KEY"] {
             apiKey = key
@@ -35,7 +46,7 @@ struct ContentView: View {
         }
     }
 
-    // Fonction pour vérifier l'authentification
+    // Authenticate TMDB API
     func checkAuth() async {
         guard let apiKey = apiKey else {
             print("API Key is not loaded")
@@ -65,12 +76,25 @@ struct ContentView: View {
         }
     }
 
-    // Fonction pour obtenir les films
+    // Fetch movie data (TMDB API)
     func getMovies() async {
         await checkAuth()
     }
 
-    // Chargement du fichier .env
+    // Fetch Firestore data
+    func fetchFirestoreData() async {
+        db.collection("utilisateurs").getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error getting Firestore documents: \(error)")
+            } else {
+                for document in querySnapshot!.documents {
+                    print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
+
+    // Load the .env file
     func loadEnv() -> [String: String]? {
         guard let path = Bundle.main.path(forResource: ".env.xcconfig", ofType: nil) else {
             print(".env file not found")

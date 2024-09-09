@@ -1,2 +1,41 @@
-.env
-.env.xcconfig
+# Xcode
+.DS_Store
+xcuserdata/
+*.xcworkspace
+*.xcuserstate
+*.lock
+build/
+DerivedData/
+
+# Swift Packages
+Packages/
+.swiftpm/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/report.html
+
+# Firebase
+GoogleService-Info.plist
+
+# Others
+*.moved-aside
+*.xcuserstate
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.local
+*.xcconfig
+*.env.xcconfig
+*.env
