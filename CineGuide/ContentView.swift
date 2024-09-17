@@ -32,6 +32,7 @@ struct ContentView: View {
     @State private var showLogoutMessage = false  // Show message after logout
     @State private var showErrorAlert = false     // To trigger alert for errors
     @State private var errorMessage = ""          // Error message to display
+    @State private var searchText = ""            // State for search bar
     @EnvironmentObject var authManager: AuthManager // Use shared auth manager
     
     let db = Firestore.firestore()
@@ -60,6 +61,17 @@ struct ContentView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     
+                    // Search bar
+                    HStack {
+                        TextField("🍿 What movie are you in the mood for?", text: $searchText)
+                            .padding(.leading, 15)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                    }
+                    .padding(.vertical, 10)
+
                     // Movie title section
                     HStack {
                         Text("Hot Right Now 🔥")
@@ -71,7 +83,7 @@ struct ContentView: View {
                     .padding(.vertical, 10)
                     
                     // Directly display the movie list view instead of Fetch button
-                    List(movies) { movie in
+                    List(movies.filter { searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText) }) { movie in
                         HStack {
                             if let posterURL = movie.posterURL {
                                 AsyncImage(url: posterURL) { image in
