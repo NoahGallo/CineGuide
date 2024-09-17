@@ -33,9 +33,8 @@ struct ContentView: View {
     @State private var showErrorAlert = false     // To trigger alert for errors
     @State private var errorMessage = ""          // Error message to display
     @State private var searchText = ""            // State for search bar
+    @State private var isSearching = false        // Track if user is searching
     @EnvironmentObject var authManager: AuthManager // Use shared auth manager
-    
-    let db = Firestore.firestore()
 
     var body: some View {
         NavigationView {
@@ -63,27 +62,42 @@ struct ContentView: View {
                     
                     // Search bar
                     HStack {
-                        TextField("🍿 What movie are you in the mood for?", text: $searchText)
-                            .padding(.leading, 15)
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                            .padding(.horizontal)
+                        TextField("🍿 Find your favorite movie...", text: $searchText)
+                            .onChange(of: searchText, perform: { newValue in
+                                if !newValue.isEmpty {
+                                    isSearching = true
+                                    Task {
+                                        await searchMovies(query: newValue)
+                                    }
+                                } else {
+                                    isSearching = false
+                                    Task {
+                                        await getMovies()
+                                    }
+                                }
+                            })
+                        .padding(.leading, 15)
+                        .padding()
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(10)
+                        .padding(.horizontal)
                     }
                     .padding(.vertical, 10)
 
-                    // Movie title section
-                    HStack {
-                        Text("Hot Right Now 🔥")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .padding(.leading)
-                        Spacer()
+                    // Movie title section (Hide if searching)
+                    if !isSearching {
+                        HStack {
+                            Text("Hot Right Now 🔥")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .padding(.leading)
+                            Spacer()
+                        }
+                        .padding(.vertical, 10)
                     }
-                    .padding(.vertical, 10)
-                    
-                    // Directly display the movie list view instead of Fetch button
-                    List(movies.filter { searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText) }) { movie in
+
+                    // Movie list display
+                    List(movies) { movie in
                         HStack {
                             if let posterURL = movie.posterURL {
                                 AsyncImage(url: posterURL) { image in
@@ -104,9 +118,11 @@ struct ContentView: View {
                     }
                 }
                 .onAppear {
-                    // Automatically fetch movies when the view appears
-                    Task {
-                        await getMovies()
+                    // Automatically fetch popular movies when the view appears
+                    if !isSearching {
+                        Task {
+                            await getMovies()
+                        }
                     }
                 }
                 .alert(isPresented: $showErrorAlert) {
@@ -159,7 +175,7 @@ struct ContentView: View {
         }
     }
 
-    // Fetch movie data (TMDB API)
+    // Fetch popular movies (TMDB API)
     func getMovies() async {
         guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else {
             errorMessage = "Bearer Token is not loaded."
@@ -197,6 +213,52 @@ struct ContentView: View {
             let decoder = JSONDecoder()
             let movieResponse = try decoder.decode(MovieResponse.self, from: data)
             self.movies = movieResponse.results
+        } catch {
+            errorMessage = "Request failed with error: \(error.localizedDescription)"
+            showErrorAlert = true
+        }
+    }
+
+    // Search for movies (TMDB API)
+    func searchMovies(query: String) async {
+        guard !query.isEmpty else { return } // Don't search if the query is empty
+        guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else {
+            errorMessage = "Bearer Token is not loaded."
+            showErrorAlert = true
+            return
+        }
+
+        do {
+            let urlString = "https://api.themoviedb.org/3/search/movie?query=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&language=en-US&page=1"
+            guard let url = URL(string: urlString) else {
+                errorMessage = "Invalid URL."
+                showErrorAlert = true
+                return
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 401 {
+                    errorMessage = "Unauthorized: Bearer token might be incorrect or expired."
+                    showErrorAlert = true
+                    return
+                }
+                if httpResponse.statusCode != 200 {
+                    errorMessage = "Unexpected response: \(httpResponse.statusCode)"
+                    showErrorAlert = true
+                    return
+                }
+            }
+
+            let decoder = JSONDecoder()
+            let movieResponse = try decoder.decode(MovieResponse.self, from: data)
+            self.movies = movieResponse.results
+            print("Search response: \(movieResponse.results)") // Logging the search results in the console
         } catch {
             errorMessage = "Request failed with error: \(error.localizedDescription)"
             showErrorAlert = true
