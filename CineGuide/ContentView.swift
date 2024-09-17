@@ -2,7 +2,6 @@ import SwiftUI
 import Firebase
 import FirebaseFirestore
 
-// Movie model to represent the TMDB movie data
 struct Movie: Identifiable, Codable {
     let id: Int
     let title: String
@@ -16,147 +15,193 @@ struct Movie: Identifiable, Codable {
         case posterPath = "poster_path"
     }
     
-    // Computed property to get the full poster URL
     var posterURL: URL? {
         URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
     }
 }
 
+struct MovieResponse: Codable {
+    let results: [Movie]
+}
+
 struct ContentView: View {
     @State private var movies: [Movie] = []  // State variable to hold movie data
+    @State private var showMenu = false
+    @State private var navigateToLogin = false
+    @State private var navigateToRegister = false
+    @State private var showLogoutMessage = false  // Show message after logout
+    @State private var showErrorAlert = false     // To trigger alert for errors
+    @State private var errorMessage = ""          // Error message to display
+    @EnvironmentObject var authManager: AuthManager // Use shared auth manager
+    
     let db = Firestore.firestore()
 
     var body: some View {
         NavigationView {
-            VStack {
-                if movies.isEmpty {
-                    // If no movies are loaded, show the buttons
-                    Button(action: {
-                        Task {
-                            await getMovies()
+            ZStack {
+                VStack {
+                    // Top bar with project name and burger menu button
+                    HStack {
+                        Button(action: {
+                            withAnimation { showMenu.toggle() }
+                        }) {
+                            Image(systemName: showMenu ? "xmark" : "line.horizontal.3")
+                                .font(.title)
+                                .foregroundColor(.white)
+                                .padding(.leading)
                         }
-                    }, label: {
-                        Text("Fetch Movies")
+                        Spacer()
+                        Text("CineGuide")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    })
+                        Spacer()
+                    }
+                    .background(Color.blue)
+                    .foregroundColor(.white)
                     
-                    Button(action: {
-                        Task {
-                            await fetchFirestoreData()
-                        }
-                    }, label: {
-                        Text("Fetch Firestore Data")
-                            .padding()
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    })
-                } else {
-                    // Display the fetched movies
+                    // Movie title section
+                    HStack {
+                        Text("Hot Right Now 🔥")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding(.leading)
+                        Spacer()
+                    }
+                    .padding(.vertical, 10)
+                    
+                    // Directly display the movie list view instead of Fetch button
                     List(movies) { movie in
                         HStack {
-                            // Display movie poster
                             if let posterURL = movie.posterURL {
                                 AsyncImage(url: posterURL) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
+                                    image.resizable().aspectRatio(contentMode: .fit)
                                         .frame(width: 100, height: 150)
                                 } placeholder: {
                                     ProgressView()
                                 }
                             }
-                            // Display movie details
                             VStack(alignment: .leading, spacing: 10) {
-                                Text(movie.title)
-                                    .font(.headline)
+                                Text(movie.title).font(.headline)
                                 Text(movie.overview)
                                     .font(.subheadline)
-                                    .lineLimit(4)  // Limit the number of lines for the overview
+                                    .lineLimit(4)
                                     .padding(.top, 5)
                             }
                         }
                     }
-                    .navigationTitle("Popular Movies")
                 }
+                .onAppear {
+                    // Automatically fetch movies when the view appears
+                    Task {
+                        await getMovies()
+                    }
+                }
+                .alert(isPresented: $showErrorAlert) {
+                    Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+                }
+
+                // Burger menu overlay with animation
+                if showMenu {
+                    ZStack(alignment: .leading) {
+                        Color.black.opacity(0.3)
+                            .edgesIgnoringSafeArea(.all)
+                            .onTapGesture {
+                                withAnimation { showMenu = false }
+                            }
+
+                        HStack {
+                            BurgerMenu(showMenu: $showMenu, navigateToLogin: $navigateToLogin, navigateToRegister: $navigateToRegister, showLogoutMessage: $showLogoutMessage)
+                                .frame(width: UIScreen.main.bounds.width / 2)
+                                .background(Color.gray.opacity(0.9))
+                                .transition(.move(edge: .leading))
+                            Spacer()
+                        }
+                    }
+
+                    // Keep the X button on top and in the same position as the burger icon
+                    VStack {
+                        HStack {
+                            Button(action: {
+                                withAnimation { showMenu.toggle() }
+                            }) {
+                                Image(systemName: "xmark")
+                                    .font(.title)
+                                    .foregroundColor(.white)
+                                    .padding(.leading)
+                                    .padding(.top, 60)
+                            }
+                            Spacer()
+                        }
+                        Spacer()
+                    }
+                }
+
+                // Navigation links for login and register
+                NavigationLink("", destination: LoginView(), isActive: $navigateToLogin)
+                NavigationLink("", destination: RegisterView(), isActive: $navigateToRegister)
+            }
+            .alert(isPresented: $showLogoutMessage) {
+                Alert(title: Text("Logged Out"), message: Text("You have successfully logged out."), dismissButton: .default(Text("OK")))
             }
         }
     }
 
     // Fetch movie data (TMDB API)
     func getMovies() async {
-        // Load Bearer token from the .env file
         guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else {
-            print("Bearer Token is not loaded")
+            errorMessage = "Bearer Token is not loaded."
+            showErrorAlert = true
             return
         }
 
         do {
-            // URL without API key query parameter
             let urlString = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
             guard let url = URL(string: urlString) else {
-                print("Invalid URL")
+                errorMessage = "Invalid URL."
+                showErrorAlert = true
                 return
             }
 
-            // Create the request and set the Authorization header with the Bearer token
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 
-            // Perform the API call
             let (data, response) = try await URLSession.shared.data(for: request)
 
-            // Debugging: Check the HTTP status code
             if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP Status Code: \(httpResponse.statusCode)")
                 if httpResponse.statusCode == 401 {
-                    print("Unauthorized: Bearer token might be incorrect or expired")
+                    errorMessage = "Unauthorized: Bearer token might be incorrect or expired."
+                    showErrorAlert = true
+                    return
+                }
+                if httpResponse.statusCode != 200 {
+                    errorMessage = "Unexpected response: \(httpResponse.statusCode)"
+                    showErrorAlert = true
+                    return
                 }
             }
 
-            // Debugging: Print the raw response body for further analysis
-            print("Raw Response: \(String(data: data, encoding: .utf8)!)")
-
-            // If the response is successful, proceed with parsing the JSON
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                let decoder = JSONDecoder()
-                let movieResponse = try decoder.decode(MovieResponse.self, from: data)
-                self.movies = movieResponse.results
-                print("Movies loaded successfully")
-            }
+            let decoder = JSONDecoder()
+            let movieResponse = try decoder.decode(MovieResponse.self, from: data)
+            self.movies = movieResponse.results
         } catch {
-            print("Request failed with error: \(error)")
+            errorMessage = "Request failed with error: \(error.localizedDescription)"
+            showErrorAlert = true
         }
     }
 
-    // Fetch Firestore data
-    func fetchFirestoreData() async {
-        db.collection("utilisateurs").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("Error getting Firestore documents: \(error)")
-            } else {
-                for document in querySnapshot!.documents {
-                    print("\(document.documentID) => \(document.data())")
-                }
-            }
-        }
-    }
-
-    // Load the .env file
+    // Load .env file
     func loadEnv() -> [String: String]? {
         guard let path = Bundle.main.path(forResource: ".env.xcconfig", ofType: nil) else {
-            print(".env file not found")
+            errorMessage = ".env file not found."
+            showErrorAlert = true
             return nil
         }
 
         do {
             let data = try String(contentsOfFile: path, encoding: .utf8)
             var envDict = [String: String]()
-
             let lines = data.split { $0.isNewline }
             for line in lines {
                 let parts = line.split(separator: "=", maxSplits: 1).map { String($0) }
@@ -166,17 +211,87 @@ struct ContentView: View {
             }
             return envDict
         } catch {
-            print("Error reading .env file: \(error)")
+            errorMessage = "Error reading .env file: \(error.localizedDescription)"
+            showErrorAlert = true
             return nil
         }
     }
 }
 
-// Movie response to map the results from TMDB API
-struct MovieResponse: Codable {
-    let results: [Movie]
-}
+// Define the modified BurgerMenu view
 
-#Preview {
-    ContentView()
+struct BurgerMenu: View {
+    @Binding var showMenu: Bool
+    @Binding var navigateToLogin: Bool
+    @Binding var navigateToRegister: Bool
+    @Binding var showLogoutMessage: Bool
+    @EnvironmentObject var authManager: AuthManager // Use shared auth manager
+
+    var body: some View {
+        VStack(alignment: .center) {
+            Spacer()
+            if authManager.isLoggedIn {
+                // Display welcome message with username
+                VStack {
+                    Text("👋 Welcome, \(authManager.username ?? "User")!")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Enjoy browsing!")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding(.bottom, 20)
+                
+                // Show logout button
+                Button(action: {
+                    authManager.logout()
+                    showMenu = false
+                    showLogoutMessage = true
+                }) {
+                    Text("Logout")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)  // Red color for logout
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                }
+            } else {
+                // Show login and register options if the user is not logged in
+                Button(action: {
+                    navigateToLogin = true
+                    showMenu = false
+                }) {
+                    Text("Login")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.gray)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 10)
+
+                Button(action: {
+                    navigateToRegister = true
+                    showMenu = false
+                }) {
+                    Text("Register")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.gray)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                }
+            }
+            Spacer()
+        }
+        .frame(maxWidth: UIScreen.main.bounds.width / 2)
+        .background(Color.gray.opacity(0.9))
+        .edgesIgnoringSafeArea(.all)
+    }
 }
