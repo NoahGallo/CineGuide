@@ -36,6 +36,7 @@
 		EC4635A72C8F3F7400B8EB2C /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = EC4635A62C8F3F7400B8EB2C /* FirebaseVertexAI-Preview */; };
 		EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */ = {isa = PBXBuildFile; fileRef = EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */; };
 		ECBE763E2C8F3AB300F6E9DB /* .env.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */; };
+		ECCF40DC2C998C4D00FCDE75 /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = ECCF40DB2C998C4D00FCDE75 /* ModalView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +45,7 @@
 		EC46356C2C8F229C00B8EB2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EC46356E2C8F229D00B8EB2C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = .env.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -62,6 +63,7 @@
 				EC4635832C8F3F7400B8EB2C /* FirebaseAppDistribution-Beta in Frameworks */,
 				EC46357F2C8F3F7400B8EB2C /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				EC4635892C8F3F7400B8EB2C /* FirebaseCrashlytics in Frameworks */,
+				ECCF40DC2C998C4D00FCDE75 /* ModalView in Frameworks */,
 				EC46358B2C8F3F7400B8EB2C /* FirebaseDatabase in Frameworks */,
 				EC4635952C8F3F7400B8EB2C /* FirebaseFunctionsCombine-Community in Frameworks */,
 				EC4635872C8F3F7400B8EB2C /* FirebaseAuthCombine-Community in Frameworks */,
@@ -159,6 +161,7 @@
 				EC4635A22C8F3F7400B8EB2C /* FirebaseStorage */,
 				EC4635A42C8F3F7400B8EB2C /* FirebaseStorageCombine-Community */,
 				EC4635A62C8F3F7400B8EB2C /* FirebaseVertexAI-Preview */,
+				ECCF40DB2C998C4D00FCDE75 /* ModalView */,
 			);
 			productName = CineGuide;
 			productReference = EC4635672C8F229C00B8EB2C /* CineGuide.app */;
@@ -190,6 +193,7 @@
 			mainGroup = EC46355E2C8F229C00B8EB2C;
 			packageReferences = (
 				EC4635792C8F3F7400B8EB2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ECCF40DA2C998C4D00FCDE75 /* XCRemoteSwiftPackageReference "modal-view" */,
 			);
 			productRefGroup = EC4635682C8F229C00B8EB2C /* Products */;
 			projectDirPath = "";
@@ -434,6 +438,14 @@
 				minimumVersion = 11.1.0;
 			};
 		};
+		ECCF40DA2C998C4D00FCDE75 /* XCRemoteSwiftPackageReference "modal-view" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/diniska/modal-view";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -551,6 +563,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EC4635792C8F3F7400B8EB2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseVertexAI-Preview";
+		};
+		ECCF40DB2C998C4D00FCDE75 /* ModalView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECCF40DA2C998C4D00FCDE75 /* XCRemoteSwiftPackageReference "modal-view" */;
+			productName = ModalView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
