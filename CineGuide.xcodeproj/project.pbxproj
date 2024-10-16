@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC2FC4EA2C9989C0005EE8A5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2FC4E92C9989C0005EE8A5 /* LoginView.swift */; };
+		EC2FC4EC2C9989E0005EE8A5 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2FC4EB2C9989E0005EE8A5 /* RegisterView.swift */; };
+		EC2FC4EE2C99AA8D005EE8A5 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2FC4ED2C99AA8D005EE8A5 /* AuthManager.swift */; };
 		EC46356B2C8F229C00B8EB2C /* CineGuideApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46356A2C8F229C00B8EB2C /* CineGuideApp.swift */; };
 		EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46356C2C8F229C00B8EB2C /* ContentView.swift */; };
 		EC46356F2C8F229D00B8EB2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EC46356E2C8F229D00B8EB2C /* Assets.xcassets */; };
@@ -39,6 +42,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EC2FC4E92C9989C0005EE8A5 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		EC2FC4EB2C9989E0005EE8A5 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		EC2FC4ED2C99AA8D005EE8A5 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		EC4635672C8F229C00B8EB2C /* CineGuide.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CineGuide.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC46356A2C8F229C00B8EB2C /* CineGuideApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CineGuideApp.swift; sourceTree = "<group>"; };
 		EC46356C2C8F229C00B8EB2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,6 +113,9 @@
 				EC46356E2C8F229D00B8EB2C /* Assets.xcassets */,
 				EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */,
 				EC4635702C8F229D00B8EB2C /* Preview Content */,
+				EC2FC4E92C9989C0005EE8A5 /* LoginView.swift */,
+				EC2FC4EB2C9989E0005EE8A5 /* RegisterView.swift */,
+				EC2FC4ED2C99AA8D005EE8A5 /* AuthManager.swift */,
 			);
 			path = CineGuide;
 			sourceTree = "<group>";
@@ -219,7 +228,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */,
+				EC2FC4EE2C99AA8D005EE8A5 /* AuthManager.swift in Sources */,
+				EC2FC4EC2C9989E0005EE8A5 /* RegisterView.swift in Sources */,
 				EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */,
+				EC2FC4EA2C9989C0005EE8A5 /* LoginView.swift in Sources */,
 				EC46356B2C8F229C00B8EB2C /* CineGuideApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

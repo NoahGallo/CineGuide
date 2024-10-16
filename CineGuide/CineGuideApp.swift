@@ -14,10 +14,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct CineGuideApp: App {
     // Register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject var authManager = AuthManager() // StateObject to manage auth
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authManager) // Pass the auth manager
         }
     }
 }
