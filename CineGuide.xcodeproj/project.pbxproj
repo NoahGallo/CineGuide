@@ -37,6 +37,8 @@
 		EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */ = {isa = PBXBuildFile; fileRef = EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */; };
 		ECBE763E2C8F3AB300F6E9DB /* .env.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */; };
 		ECCF40DC2C998C4D00FCDE75 /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = ECCF40DB2C998C4D00FCDE75 /* ModalView */; };
+		ECCF40DF2C99CE3400FCDE75 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF40DE2C99CE3400FCDE75 /* Movie.swift */; };
+		ECCF40E22C99D01F00FCDE75 /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF40E12C99D01F00FCDE75 /* BottomBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +49,8 @@
 		EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = .env.xcconfig; sourceTree = "<group>"; };
+		ECCF40DE2C99CE3400FCDE75 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
+		ECCF40E12C99D01F00FCDE75 /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +107,8 @@
 		EC4635692C8F229C00B8EB2C /* CineGuide */ = {
 			isa = PBXGroup;
 			children = (
+				ECCF40E02C99CFF500FCDE75 /* view */,
+				ECCF40DD2C99CE0200FCDE75 /* object */,
 				ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */,
 				EC46356A2C8F229C00B8EB2C /* CineGuideApp.swift */,
 				EC46356C2C8F229C00B8EB2C /* ContentView.swift */,
@@ -119,6 +125,22 @@
 				EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		ECCF40DD2C99CE0200FCDE75 /* object */ = {
+			isa = PBXGroup;
+			children = (
+				ECCF40DE2C99CE3400FCDE75 /* Movie.swift */,
+			);
+			path = object;
+			sourceTree = "<group>";
+		};
+		ECCF40E02C99CFF500FCDE75 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				ECCF40E12C99D01F00FCDE75 /* BottomBar.swift */,
+			);
+			path = view;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -223,7 +245,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */,
+				ECCF40E22C99D01F00FCDE75 /* BottomBar.swift in Sources */,
 				EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */,
+				ECCF40DF2C99CE3400FCDE75 /* Movie.swift in Sources */,
 				EC46356B2C8F229C00B8EB2C /* CineGuideApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
