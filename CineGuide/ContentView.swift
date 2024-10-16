@@ -15,6 +15,7 @@ struct MovieResponse: Codable {
 
 struct ContentView: View {
     @State private var movies: [Movie] = []  // State variable to hold movie data
+    @State private var favoriteMovieIDs: [Int] = []
     @State private var selectedMovie: Movie?
     @State private var showModal = false
     @State private var currentPage = 1
@@ -22,6 +23,7 @@ struct ContentView: View {
     @State private var showMenu = false
     @State private var navigateToLogin = false
     @State private var navigateToRegister = false
+    @State private var navigateToFavorites = false
     @State private var showLogoutMessage = false  // Show message after logout
     @State private var showErrorAlert = false     // To trigger alert for errors
     @State private var errorMessage = ""          // Error message to display
@@ -128,6 +130,15 @@ struct ContentView: View {
                                             Image(systemName: "info.circle.fill")
                                                 .font(.title2)
                                                 .foregroundColor(.blue)
+                                            
+                                            if authManager.isLoggedIn { // Show heart only if logged in
+                                                Image(systemName: isFavorite(movie: movie) ? "heart.fill" : "heart") // Fill heart if it's a favorite
+                                                    .font(.title2)
+                                                    .foregroundColor(.red)
+                                                    .onTapGesture {
+                                                        toggleFavorite(movie: movie) // Add or remove from favorites
+                                                    }
+                                            }
                                         }
                                         .padding(.leading, 10)
                                         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -179,6 +190,9 @@ struct ContentView: View {
                 .onAppear {
                     Task {
                         await getMovies(currentPage: currentPage)
+                        if authManager.isLoggedIn {
+                            await fetchFavoriteMovies() // Fetch favorite movies if logged in
+                        }
                     }
                 }
                 .alert(isPresented: $showErrorAlert) {
@@ -195,12 +209,19 @@ struct ContentView: View {
                             }
 
                         HStack {
-                            BurgerMenu(showMenu: $showMenu, navigateToLogin: $navigateToLogin, navigateToRegister: $navigateToRegister, showLogoutMessage: $showLogoutMessage)
-                                .frame(width: UIScreen.main.bounds.width / 2)
-                                .background(Color.gray.opacity(0.9))
-                                .transition(.move(edge: .leading))
+                            BurgerMenu(
+                                showMenu: $showMenu,
+                                navigateToLogin: $navigateToLogin,
+                                navigateToRegister: $navigateToRegister,
+                                navigateToFavorites: $navigateToFavorites,  // Add this line
+                                showLogoutMessage: $showLogoutMessage
+                            )
+                            .frame(width: UIScreen.main.bounds.width / 2)
+                            .background(Color.gray.opacity(0.9))
+                            .transition(.move(edge: .leading))
                             Spacer()
                         }
+
                     }
 
                     // Keep the X button on top and in the same position as the burger icon
@@ -224,6 +245,8 @@ struct ContentView: View {
                 // Navigation links for login and register
                 NavigationLink("", destination: LoginView(), isActive: $navigateToLogin)
                 NavigationLink("", destination: RegisterView(), isActive: $navigateToRegister)
+                NavigationLink("", destination: FavoritesPage(), isActive: $navigateToFavorites)
+
             }
             .alert(isPresented: $showLogoutMessage) {
                 Alert(title: Text("Logged Out"), message: Text("You have successfully logged out."), dismissButton: .default(Text("OK")))
@@ -346,10 +369,104 @@ struct ContentView: View {
             return nil
         }
     }
+    
+    func fetchFavoriteMovies() async {
+        guard let username = authManager.username else {
+            errorMessage = "User not logged in."
+            showErrorAlert = true
+            return
+        }
+
+        let db = Firestore.firestore()
+        let userFavoritesRef = db.collection("favorites").document(username)
+
+        do {
+            let document = try await userFavoritesRef.getDocument()
+            guard let data = document.data(), let movieIDs = data["movies"] as? [Int] else {
+                errorMessage = "No favorite movies found."
+                showErrorAlert = true
+                return
+            }
+
+            // Store the favorite movie IDs
+            self.favoriteMovieIDs = movieIDs
+        } catch {
+            errorMessage = "Failed to load favorite movies: \(error.localizedDescription)"
+            showErrorAlert = true
+        }
+    }
+
 
     func onClickCard(movie: Movie) {
         selectedMovie = movie
         showModal = true
+    }
+    
+    func isFavorite(movie: Movie) -> Bool {
+        return favoriteMovieIDs.contains(movie.id)
+    }
+
+    
+    func toggleFavorite(movie: Movie) {
+        if isFavorite(movie: movie) {
+            // Remove from favorites
+            removeFromFavorites(movie: movie)
+        } else {
+            // Add to favorites
+            addToFavorites(movie: movie)
+        }
+    }
+    
+    func addToFavorites(movie: Movie) {
+        guard let username = authManager.username else {
+            errorMessage = "User not logged in."
+            showErrorAlert = true
+            return
+        }
+        
+        let db = Firestore.firestore()
+        
+        // Create the reference to the user's document inside the 'favorites' collection
+        let userFavoritesRef = db.collection("favorites").document(username)
+
+        // Add or merge the movie ID to the user's favorites
+        userFavoritesRef.updateData([
+            "movies": FieldValue.arrayUnion([movie.id])
+        ]) { error in
+            if let error = error {
+                errorMessage = "Error adding to favorites: \(error.localizedDescription)"
+                showErrorAlert = true
+            } else {
+                favoriteMovieIDs.append(movie.id) // Add to local favorite IDs
+                print("Movie added to favorites!")
+            }
+        }
+    }
+
+    func removeFromFavorites(movie: Movie) {
+        guard let username = authManager.username else {
+            errorMessage = "User not logged in."
+            showErrorAlert = true
+            return
+        }
+
+        let db = Firestore.firestore()
+        let userFavoritesRef = db.collection("favorites").document(username)
+
+        userFavoritesRef.updateData([
+            "movies": FieldValue.arrayRemove([movie.id])
+        ]) { error in
+            if let error = error {
+                errorMessage = "Error removing from favorites: \(error.localizedDescription)"
+                showErrorAlert = true
+            } else {
+                if let index = favoriteMovieIDs.firstIndex(of: movie.id) {
+                    favoriteMovieIDs.remove(at: index) // Remove from local favorite IDs
+                }
+                print("Movie removed from favorites!")
+            }
+        }
+
     }
 }
 

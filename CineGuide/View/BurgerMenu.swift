@@ -1,16 +1,10 @@
-//
-//  BurgerMenu.swift
-//  CineGuide
-//
-//  Created by etudiant on 16/10/2024.
-//
-
 import SwiftUI
 
 struct BurgerMenu: View {
     @Binding var showMenu: Bool
     @Binding var navigateToLogin: Bool
     @Binding var navigateToRegister: Bool
+    @Binding var navigateToFavorites: Bool // Added binding for navigating to favorites
     @Binding var showLogoutMessage: Bool
     @EnvironmentObject var authManager: AuthManager // Use shared auth manager
 
@@ -28,6 +22,22 @@ struct BurgerMenu: View {
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .padding(.bottom, 20)
+                
+                // Show favorites button
+                Button(action: {
+                    navigateToFavorites = true
+                    showMenu = false
+                }) {
+                    Text("Favorites")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 10)
                 
                 // Show logout button
                 Button(action: {
