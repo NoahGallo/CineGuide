@@ -1,31 +1,24 @@
 import SwiftUI
 import Firebase
 import FirebaseFirestore
-
-struct Movie: Identifiable, Codable {
-    let id: Int
-    let title: String
-    let overview: String
-    let posterPath: String
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case title
-        case overview
-        case posterPath = "poster_path"
-    }
-    
-    var posterURL: URL? {
-        URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
-    }
-}
+import ModalView
 
 struct MovieResponse: Codable {
     let results: [Movie]
+    let totalPages: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case results
+        case totalPages = "total_pages"
+    }
 }
 
 struct ContentView: View {
     @State private var movies: [Movie] = []  // State variable to hold movie data
+    @State private var selectedMovie: Movie?
+    @State private var showModal = false
+    @State private var currentPage = 1
+    @State private var totalPages = 1
     @State private var showMenu = false
     @State private var navigateToLogin = false
     @State private var navigateToRegister = false
@@ -72,7 +65,7 @@ struct ContentView: View {
                                 } else {
                                     isSearching = false
                                     Task {
-                                        await getMovies()
+                                        await getMovies(currentPage: currentPage)
                                     }
                                 }
                             })
@@ -97,32 +90,95 @@ struct ContentView: View {
                     }
 
                     // Movie list display
-                    List(movies) { movie in
-                        HStack {
-                            if let posterURL = movie.posterURL {
-                                AsyncImage(url: posterURL) { image in
-                                    image.resizable().aspectRatio(contentMode: .fit)
-                                        .frame(width: 100, height: 150)
-                                } placeholder: {
-                                    ProgressView()
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            ForEach(movies) { movie in
+                                HStack(alignment: .top) {
+                                    ZStack {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 100, height: 150)
+                                        if let posterURL = movie.posterURL {
+                                            AsyncImage(url: posterURL) { image in
+                                                image
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: 100, height: 150)
+                                                    .cornerRadius(8)
+                                            } placeholder: {
+                                                ProgressView()
+                                                    .frame(width: 100, height: 150)
+                                            }
+                                        }
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text(movie.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                            .padding(.top, 10)
+
+                                        Text(movie.overview)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(4)
+                                            .padding(.bottom, 5)
+                                        
+                                        HStack {
+                                            Image(systemName: "info.circle.fill")
+                                                .font(.title2)
+                                                .foregroundColor(.blue)
+                                        }
+                                        .padding(.leading, 10)
+                                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                                    }
+                                    .padding(.leading, 10)
+                                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                                }
+                                .frame(width: 350, height: 150)
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(12)
+                                .shadow(radius: 4)
+                                .onTapGesture {
+                                    onClickCard(movie: movie)
                                 }
                             }
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text(movie.title).font(.headline)
-                                Text(movie.overview)
-                                    .font(.subheadline)
-                                    .lineLimit(4)
-                                    .padding(.top, 5)
+                        }
+                        .padding()
+                    }
+                    
+                    // Pagination Controls
+                    BottomBar(
+                        currentPage: currentPage,
+                        totalPages: totalPages,
+                        onPageChange: { page in
+                            currentPage = page
+                            Task {
+                                await getMovies(currentPage: currentPage)
+                            }
+                        },
+                        onPrevious: {
+                            if currentPage > 1 {
+                                currentPage -= 1
+                                Task {
+                                    await getMovies(currentPage: currentPage)
+                                }
+                            }
+                        },
+                        onNext: {
+                            if currentPage < totalPages {
+                                currentPage += 1
+                                Task {
+                                    await getMovies(currentPage: currentPage)
+                                }
                             }
                         }
-                    }
+                    )
+                    .padding()
                 }
                 .onAppear {
-                    // Automatically fetch popular movies when the view appears
-                    if !isSearching {
-                        Task {
-                            await getMovies()
-                        }
+                    Task {
+                        await getMovies(currentPage: currentPage)
                     }
                 }
                 .alert(isPresented: $showErrorAlert) {
@@ -172,11 +228,16 @@ struct ContentView: View {
             .alert(isPresented: $showLogoutMessage) {
                 Alert(title: Text("Logged Out"), message: Text("You have successfully logged out."), dismissButton: .default(Text("OK")))
             }
+            .sheet(isPresented: $showModal){
+                if let selectedMovie = selectedMovie{
+                    MovieDetailView(movie: selectedMovie)
+                }
+            }
         }
     }
-
+    
     // Fetch popular movies (TMDB API)
-    func getMovies() async {
+    func getMovies(currentPage: Int) async {
         guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else {
             errorMessage = "Bearer Token is not loaded."
             showErrorAlert = true
@@ -184,7 +245,7 @@ struct ContentView: View {
         }
 
         do {
-            let urlString = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+            let urlString = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=\(currentPage)"
             guard let url = URL(string: urlString) else {
                 errorMessage = "Invalid URL."
                 showErrorAlert = true
@@ -198,21 +259,21 @@ struct ContentView: View {
             let (data, response) = try await URLSession.shared.data(for: request)
 
             if let httpResponse = response as? HTTPURLResponse {
+                print("HTTP Status Code: \(httpResponse.statusCode)")
                 if httpResponse.statusCode == 401 {
                     errorMessage = "Unauthorized: Bearer token might be incorrect or expired."
                     showErrorAlert = true
                     return
                 }
-                if httpResponse.statusCode != 200 {
-                    errorMessage = "Unexpected response: \(httpResponse.statusCode)"
-                    showErrorAlert = true
-                    return
-                }
+            }
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                let decoder = JSONDecoder()
+                let movieResponse = try decoder.decode(MovieResponse.self, from: data)
+                self.movies = movieResponse.results
+                self.totalPages = movieResponse.totalPages  // Update total pages
+                print("Movies loaded successfully")
             }
 
-            let decoder = JSONDecoder()
-            let movieResponse = try decoder.decode(MovieResponse.self, from: data)
-            self.movies = movieResponse.results
         } catch {
             errorMessage = "Request failed with error: \(error.localizedDescription)"
             showErrorAlert = true
@@ -221,7 +282,7 @@ struct ContentView: View {
 
     // Search for movies (TMDB API)
     func searchMovies(query: String) async {
-        guard !query.isEmpty else { return } // Don't search if the query is empty
+        guard !query.isEmpty else { return }
         guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else {
             errorMessage = "Bearer Token is not loaded."
             showErrorAlert = true
@@ -248,17 +309,12 @@ struct ContentView: View {
                     showErrorAlert = true
                     return
                 }
-                if httpResponse.statusCode != 200 {
-                    errorMessage = "Unexpected response: \(httpResponse.statusCode)"
-                    showErrorAlert = true
-                    return
-                }
             }
 
             let decoder = JSONDecoder()
             let movieResponse = try decoder.decode(MovieResponse.self, from: data)
             self.movies = movieResponse.results
-            print("Search response: \(movieResponse.results)") // Logging the search results in the console
+            print("Search response: \(movieResponse.results)")
         } catch {
             errorMessage = "Request failed with error: \(error.localizedDescription)"
             showErrorAlert = true
@@ -285,87 +341,53 @@ struct ContentView: View {
             }
             return envDict
         } catch {
-            errorMessage = "Error reading .env file: \(error.localizedDescription)"
+            errorMessage = "Error reading .env file: \(error)"
             showErrorAlert = true
             return nil
         }
     }
+
+    func onClickCard(movie: Movie) {
+        selectedMovie = movie
+        showModal = true
+    }
 }
 
-// Define the modified BurgerMenu view
-
-struct BurgerMenu: View {
-    @Binding var showMenu: Bool
-    @Binding var navigateToLogin: Bool
-    @Binding var navigateToRegister: Bool
-    @Binding var showLogoutMessage: Bool
-    @EnvironmentObject var authManager: AuthManager // Use shared auth manager
+// Detailed view for the selected movie
+struct MovieDetailView: View {
+    let movie: Movie
 
     var body: some View {
-        VStack(alignment: .center) {
-            Spacer()
-            if authManager.isLoggedIn {
-                // Display welcome message with username
-                VStack {
-                    Text("👋 Welcome, \(authManager.username ?? "User")!")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Enjoy browsing!")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                .padding(.bottom, 20)
-                
-                // Show logout button
-                Button(action: {
-                    authManager.logout()
-                    showMenu = false
-                    showLogoutMessage = true
-                }) {
-                    Text("Logout")
-                        .font(.headline)
+        VStack(alignment: .leading, spacing: 15) {
+            if let posterURL = movie.posterURL {
+                AsyncImage(url: posterURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red)  // Red color for logout
-                        .foregroundColor(.white)
                         .cornerRadius(10)
-                        .padding(.horizontal, 20)
-                }
-            } else {
-                // Show login and register options if the user is not logged in
-                Button(action: {
-                    navigateToLogin = true
-                    showMenu = false
-                }) {
-                    Text("Login")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 20)
+                } placeholder: {
+                    ProgressView()
                 }
                 .padding(.bottom, 10)
-
-                Button(action: {
-                    navigateToRegister = true
-                    showMenu = false
-                }) {
-                    Text("Register")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 20)
-                }
             }
+            
+            Text(movie.title)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.bottom, 5)
+            
+            Text(movie.overview)
+                .font(.body)
+                .lineLimit(nil)
+                .padding(.bottom, 20)
+            
             Spacer()
         }
-        .frame(maxWidth: UIScreen.main.bounds.width / 2)
-        .background(Color.gray.opacity(0.9))
-        .edgesIgnoringSafeArea(.all)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(radius: 10)
+        .padding()
     }
 }

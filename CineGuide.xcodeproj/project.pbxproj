@@ -39,6 +39,12 @@
 		EC4635A72C8F3F7400B8EB2C /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = EC4635A62C8F3F7400B8EB2C /* FirebaseVertexAI-Preview */; };
 		EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */ = {isa = PBXBuildFile; fileRef = EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */; };
 		ECBE763E2C8F3AB300F6E9DB /* .env.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */; };
+		ECF6DE7D2CBFB2A700698AAF /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = ECF6DE7C2CBFB2A700698AAF /* ModalView */; };
+		ECF6DE7F2CBFB2C100698AAF /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = ECF6DE7E2CBFB2C100698AAF /* ModalView */; };
+		ECF6DE812CBFB2D700698AAF /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = ECF6DE802CBFB2D700698AAF /* ModalView */; };
+		ECF6DE872CBFB41900698AAF /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE862CBFB41900698AAF /* Movie.swift */; };
+		ECF6DE8C2CBFB49200698AAF /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE8B2CBFB49200698AAF /* BottomBar.swift */; };
+		ECF6DE8E2CBFBDCB00698AAF /* BurgerMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE8D2CBFBDCB00698AAF /* BurgerMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +58,9 @@
 		EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EC4635782C8F3E8900B8EB2C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = .env.xcconfig; sourceTree = "<group>"; };
+		ECF6DE862CBFB41900698AAF /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
+		ECF6DE8B2CBFB49200698AAF /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
+		ECF6DE8D2CBFBDCB00698AAF /* BurgerMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurgerMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,11 +72,13 @@
 				EC46359D2C8F3F7400B8EB2C /* FirebaseMessaging in Frameworks */,
 				EC46359B2C8F3F7400B8EB2C /* FirebaseMLModelDownloader in Frameworks */,
 				EC4635812C8F3F7400B8EB2C /* FirebaseAppCheck in Frameworks */,
+				ECF6DE7F2CBFB2C100698AAF /* ModalView in Frameworks */,
 				EC4635852C8F3F7400B8EB2C /* FirebaseAuth in Frameworks */,
 				EC46357B2C8F3F7400B8EB2C /* FirebaseAnalytics in Frameworks */,
 				EC4635832C8F3F7400B8EB2C /* FirebaseAppDistribution-Beta in Frameworks */,
 				EC46357F2C8F3F7400B8EB2C /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				EC4635892C8F3F7400B8EB2C /* FirebaseCrashlytics in Frameworks */,
+				ECF6DE7D2CBFB2A700698AAF /* ModalView in Frameworks */,
 				EC46358B2C8F3F7400B8EB2C /* FirebaseDatabase in Frameworks */,
 				EC4635952C8F3F7400B8EB2C /* FirebaseFunctionsCombine-Community in Frameworks */,
 				EC4635872C8F3F7400B8EB2C /* FirebaseAuthCombine-Community in Frameworks */,
@@ -80,6 +91,7 @@
 				EC46358F2C8F3F7400B8EB2C /* FirebaseFirestore in Frameworks */,
 				EC46358D2C8F3F7400B8EB2C /* FirebaseDynamicLinks in Frameworks */,
 				EC4635972C8F3F7400B8EB2C /* FirebaseInAppMessaging-Beta in Frameworks */,
+				ECF6DE812CBFB2D700698AAF /* ModalView in Frameworks */,
 				EC4635A72C8F3F7400B8EB2C /* FirebaseVertexAI-Preview in Frameworks */,
 				EC4635A12C8F3F7400B8EB2C /* FirebaseRemoteConfig in Frameworks */,
 			);
@@ -107,6 +119,8 @@
 		EC4635692C8F229C00B8EB2C /* CineGuide */ = {
 			isa = PBXGroup;
 			children = (
+				ECF6DE882CBFB45400698AAF /* View */,
+				ECF6DE832CBFB39B00698AAF /* object */,
 				ECBE763A2C8F2EB800F6E9DB /* .env.xcconfig */,
 				EC46356A2C8F229C00B8EB2C /* CineGuideApp.swift */,
 				EC46356C2C8F229C00B8EB2C /* ContentView.swift */,
@@ -126,6 +140,23 @@
 				EC4635712C8F229D00B8EB2C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		ECF6DE832CBFB39B00698AAF /* object */ = {
+			isa = PBXGroup;
+			children = (
+				ECF6DE862CBFB41900698AAF /* Movie.swift */,
+			);
+			path = object;
+			sourceTree = "<group>";
+		};
+		ECF6DE882CBFB45400698AAF /* View */ = {
+			isa = PBXGroup;
+			children = (
+				ECF6DE8B2CBFB49200698AAF /* BottomBar.swift */,
+				ECF6DE8D2CBFBDCB00698AAF /* BurgerMenu.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -168,6 +199,9 @@
 				EC4635A22C8F3F7400B8EB2C /* FirebaseStorage */,
 				EC4635A42C8F3F7400B8EB2C /* FirebaseStorageCombine-Community */,
 				EC4635A62C8F3F7400B8EB2C /* FirebaseVertexAI-Preview */,
+				ECF6DE7C2CBFB2A700698AAF /* ModalView */,
+				ECF6DE7E2CBFB2C100698AAF /* ModalView */,
+				ECF6DE802CBFB2D700698AAF /* ModalView */,
 			);
 			productName = CineGuide;
 			productReference = EC4635672C8F229C00B8EB2C /* CineGuide.app */;
@@ -199,6 +233,7 @@
 			mainGroup = EC46355E2C8F229C00B8EB2C;
 			packageReferences = (
 				EC4635792C8F3F7400B8EB2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ECF6DE7B2CBFB2A700698AAF /* XCRemoteSwiftPackageReference "modal-view" */,
 			);
 			productRefGroup = EC4635682C8F229C00B8EB2C /* Products */;
 			projectDirPath = "";
@@ -227,9 +262,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECF6DE872CBFB41900698AAF /* Movie.swift in Sources */,
 				EC4635A82C8F441D00B8EB2C /* GoogleService-Info.plist in Sources */,
 				EC2FC4EE2C99AA8D005EE8A5 /* AuthManager.swift in Sources */,
 				EC2FC4EC2C9989E0005EE8A5 /* RegisterView.swift in Sources */,
+				ECF6DE8E2CBFBDCB00698AAF /* BurgerMenu.swift in Sources */,
+				ECF6DE8C2CBFB49200698AAF /* BottomBar.swift in Sources */,
 				EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */,
 				EC2FC4EA2C9989C0005EE8A5 /* LoginView.swift in Sources */,
 				EC46356B2C8F229C00B8EB2C /* CineGuideApp.swift in Sources */,
@@ -446,6 +484,14 @@
 				minimumVersion = 11.1.0;
 			};
 		};
+		ECF6DE7B2CBFB2A700698AAF /* XCRemoteSwiftPackageReference "modal-view" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/diniska/modal-view";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -563,6 +609,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EC4635792C8F3F7400B8EB2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseVertexAI-Preview";
+		};
+		ECF6DE7C2CBFB2A700698AAF /* ModalView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECF6DE7B2CBFB2A700698AAF /* XCRemoteSwiftPackageReference "modal-view" */;
+			productName = ModalView;
+		};
+		ECF6DE7E2CBFB2C100698AAF /* ModalView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECF6DE7B2CBFB2A700698AAF /* XCRemoteSwiftPackageReference "modal-view" */;
+			productName = ModalView;
+		};
+		ECF6DE802CBFB2D700698AAF /* ModalView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECF6DE7B2CBFB2A700698AAF /* XCRemoteSwiftPackageReference "modal-view" */;
+			productName = ModalView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
