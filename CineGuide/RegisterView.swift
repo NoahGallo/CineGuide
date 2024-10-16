@@ -96,6 +96,7 @@ struct RegisterView: View {
         // Insert user into Firestore
         let db = Firestore.firestore()
         let newUser: [String: Any] = [
+//            "uuid": UUID().uuidString,
             "username": username,
             "password": hashedPassword,
             "created_at": FieldValue.serverTimestamp()  // Set server timestamp for user creation

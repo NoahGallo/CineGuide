@@ -45,6 +45,7 @@
 		ECF6DE872CBFB41900698AAF /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE862CBFB41900698AAF /* Movie.swift */; };
 		ECF6DE8C2CBFB49200698AAF /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE8B2CBFB49200698AAF /* BottomBar.swift */; };
 		ECF6DE8E2CBFBDCB00698AAF /* BurgerMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE8D2CBFBDCB00698AAF /* BurgerMenu.swift */; };
+		ECF6DE902CBFCA9000698AAF /* FavoritesPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6DE8F2CBFCA9000698AAF /* FavoritesPage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +62,7 @@
 		ECF6DE862CBFB41900698AAF /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		ECF6DE8B2CBFB49200698AAF /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
 		ECF6DE8D2CBFBDCB00698AAF /* BurgerMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurgerMenu.swift; sourceTree = "<group>"; };
+		ECF6DE8F2CBFCA9000698AAF /* FavoritesPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesPage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 				EC2FC4E92C9989C0005EE8A5 /* LoginView.swift */,
 				EC2FC4EB2C9989E0005EE8A5 /* RegisterView.swift */,
 				EC2FC4ED2C99AA8D005EE8A5 /* AuthManager.swift */,
+				ECF6DE8F2CBFCA9000698AAF /* FavoritesPage.swift */,
 			);
 			path = CineGuide;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 				EC2FC4EC2C9989E0005EE8A5 /* RegisterView.swift in Sources */,
 				ECF6DE8E2CBFBDCB00698AAF /* BurgerMenu.swift in Sources */,
 				ECF6DE8C2CBFB49200698AAF /* BottomBar.swift in Sources */,
+				ECF6DE902CBFCA9000698AAF /* FavoritesPage.swift in Sources */,
 				EC46356D2C8F229C00B8EB2C /* ContentView.swift in Sources */,
 				EC2FC4EA2C9989C0005EE8A5 /* LoginView.swift in Sources */,
 				EC46356B2C8F229C00B8EB2C /* CineGuideApp.swift in Sources */,

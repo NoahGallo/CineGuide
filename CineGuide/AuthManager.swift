@@ -8,6 +8,7 @@ class AuthManager: ObservableObject {
     func login(username: String) {
         self.isLoggedIn = true
         self.username = username
+        print("Logged in as \(username)")
     }
 
     func logout() {
