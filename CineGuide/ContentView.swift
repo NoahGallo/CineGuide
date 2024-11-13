@@ -16,7 +16,7 @@ struct MovieResponse: Codable {
 struct ContentView: View {
     @State private var movies: [Movie] = []  // State variable to hold movie data
     @State private var favoriteMovieIDs: [Int] = []
-    @State private var selectedMovie: Movie?
+    @State private var selectedMovie: MovieDetail?  // Change from Movie? to MovieDetail?
     @State private var showModal = false
     @State private var currentPage = 1
     @State private var totalPages = 1
@@ -251,11 +251,13 @@ struct ContentView: View {
             .alert(isPresented: $showLogoutMessage) {
                 Alert(title: Text("Logged Out"), message: Text("You have successfully logged out."), dismissButton: .default(Text("OK")))
             }
-            .sheet(isPresented: $showModal){
-                if let selectedMovie = selectedMovie{
-                    MovieDetailView(movie: selectedMovie)
+            .sheet(isPresented: $showModal) {
+                if let selectedMovie = selectedMovie as? MovieDetail {  // Cast to MovieDetail
+                    MovieDetailView(movieDetail: selectedMovie)  // Change argument label
                 }
             }
+
+
         }
     }
     
@@ -343,7 +345,30 @@ struct ContentView: View {
             showErrorAlert = true
         }
     }
+    
+    func fetchMovieDetails(movieID: Int) async -> MovieDetail? {
+        guard let bearerToken = loadEnv()?["API_TMDB_TOKEN"] else { return nil }
 
+        let urlString = "https://api.themoviedb.org/3/movie/\(movieID)?language=en-US"
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decoder = JSONDecoder()
+            let movieDetail = try decoder.decode(MovieDetail.self, from: data)
+            
+            return movieDetail
+        } catch {
+            print("Failed to fetch movie details: \(error)")
+            return nil
+        }
+    }
+
+    
     // Load .env file
     func loadEnv() -> [String: String]? {
         guard let path = Bundle.main.path(forResource: ".env.xcconfig", ofType: nil) else {
@@ -398,9 +423,18 @@ struct ContentView: View {
 
 
     func onClickCard(movie: Movie) {
-        selectedMovie = movie
-        showModal = true
+        Task {
+            if let details = await fetchMovieDetails(movieID: movie.id) {
+                selectedMovie = details  // Use MovieDetail instead of Movie
+                showModal = true
+            } else {
+                errorMessage = "Failed to load movie details."
+                showErrorAlert = true
+            }
+        }
     }
+
+
     
     func isFavorite(movie: Movie) -> Bool {
         return favoriteMovieIDs.contains(movie.id)
@@ -423,16 +457,14 @@ struct ContentView: View {
             showErrorAlert = true
             return
         }
-        
+
         let db = Firestore.firestore()
-        
-        // Create the reference to the user's document inside the 'favorites' collection
         let userFavoritesRef = db.collection("favorites").document(username)
 
-        // Add or merge the movie ID to the user's favorites
-        userFavoritesRef.updateData([
+        // Use setData to create the document if it doesn't exist, and merge with existing data
+        userFavoritesRef.setData([
             "movies": FieldValue.arrayUnion([movie.id])
-        ]) { error in
+        ], merge: true) { error in
             if let error = error {
                 errorMessage = "Error adding to favorites: \(error.localizedDescription)"
                 showErrorAlert = true
@@ -442,6 +474,7 @@ struct ContentView: View {
             }
         }
     }
+
 
     func removeFromFavorites(movie: Movie) {
         guard let username = authManager.username else {
@@ -453,58 +486,88 @@ struct ContentView: View {
         let db = Firestore.firestore()
         let userFavoritesRef = db.collection("favorites").document(username)
 
-        userFavoritesRef.updateData([
-            "movies": FieldValue.arrayRemove([movie.id])
-        ]) { error in
-            if let error = error {
-                errorMessage = "Error removing from favorites: \(error.localizedDescription)"
-                showErrorAlert = true
-            } else {
-                if let index = favoriteMovieIDs.firstIndex(of: movie.id) {
-                    favoriteMovieIDs.remove(at: index) // Remove from local favorite IDs
+        // Check if the document exists before attempting to update it
+        userFavoritesRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                userFavoritesRef.updateData([
+                    "movies": FieldValue.arrayRemove([movie.id])
+                ]) { error in
+                    if let error = error {
+                        errorMessage = "Error removing from favorites: \(error.localizedDescription)"
+                        showErrorAlert = true
+                    } else {
+                        if let index = favoriteMovieIDs.firstIndex(of: movie.id) {
+                            favoriteMovieIDs.remove(at: index) // Remove from local favorite IDs
+                        }
+                        print("Movie removed from favorites!")
+                    }
                 }
-                print("Movie removed from favorites!")
+            } else {
+                errorMessage = "Document does not exist for user \(username)."
+                showErrorAlert = true
             }
         }
-
     }
+
 }
 
 // Detailed view for the selected movie
 struct MovieDetailView: View {
-    let movie: Movie
-
+    let movieDetail: MovieDetail
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            if let posterURL = movie.posterURL {
-                AsyncImage(url: posterURL) { image in
-                    image
+        ScrollView {
+            VStack(alignment: .leading, spacing: 15) {
+                // Movie Poster
+                if let posterURL = movieDetail.posterURL {
+                    AsyncImage(url: posterURL) { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .cornerRadius(10)
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .padding(.bottom, 10)
+                } else {
+                    // Placeholder image if poster URL is not available
+                    Image(systemName: "photo")
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
                         .frame(maxWidth: .infinity)
-                        .cornerRadius(10)
-                } placeholder: {
-                    ProgressView()
+                        .foregroundColor(.gray)
+                        .padding(.bottom, 10)
                 }
-                .padding(.bottom, 10)
+
+                // Movie Title
+                Text(movieDetail.title)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+
+                // Movie Release Date
+                Text("Release Date: \(movieDetail.releaseDate)")
+                    .font(.subheadline)
+
+                // Movie Runtime
+                Text("Runtime: \(movieDetail.runtime) minutes")
+                    .font(.subheadline)
+
+                // Movie Rating
+                Text("Rating: \(movieDetail.voteAverage, specifier: "%.1f") / 10")
+                    .font(.subheadline)
+
+                // Genres
+                Text("Genres: \(movieDetail.genres.map { $0.name }.joined(separator: ", "))")
+                    .font(.subheadline)
+
+                // Movie Overview
+                Text(movieDetail.overview)
+                    .font(.body)
+                    .padding(.top, 10)
+
+                Spacer()
             }
-            
-            Text(movie.title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.bottom, 5)
-            
-            Text(movie.overview)
-                .font(.body)
-                .lineLimit(nil)
-                .padding(.bottom, 20)
-            
-            Spacer()
+            .padding()
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(radius: 10)
-        .padding()
     }
 }
