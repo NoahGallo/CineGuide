@@ -11,7 +11,41 @@ Welcome to **CineGuide** – your personal movie guide app! 🎥🍿 With CineGu
 
 ## Screenshots
 
-<!-- Include some images of your app here -->
+### Main Screen
+Discover trending movies and navigate easily within the app.
+<div align="center">
+    <img src="images/mainscreen.png" alt="Main Screen" width="300"/>
+</div>
+
+### Login Screen
+Securely log in to access personalized features.
+<div align="center">
+    <img src="images/login.png" alt="Login Screen" width="300"/>
+</div>
+
+### Register Screen
+Create a new account to start adding favorites.
+<div align="center">
+    <img src="images/register.png" alt="Register Screen" width="300"/>
+</div>
+
+### Logged In - Main Screen
+View your account-specific content once logged in.
+<div align="center">
+    <img src="images/logged_in_mainscreen.png" alt="Logged In Main Screen" width="300"/>
+</div>
+
+### Favorites Screen
+See your favorite movies collected in one place.
+<div align="center">
+    <img src="images/favorites.png" alt="Favorites Screen" width="300"/>
+</div>
+
+### Detailed Movie View
+Get in-depth information on each movie, including runtime, genres, and plot.
+<div align="center">
+    <img src="images/detailed_view.png" alt="Detailed View" width="300"/>
+</div>
 
 ---
 
